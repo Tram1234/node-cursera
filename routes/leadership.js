@@ -1,30 +1,74 @@
 var express = require('express');
-var route = express.Router();
+var router = express.Router();
+var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+var Leaders = require('../models/leaders');
+var Promise = require('bluebird');
+mongoose.Promise = Promise;
 
-route.all('/',function(req,res,next){
-    res.writeHead(200,{'Content-Type':'Plain/text'});
+router.use(bodyParser.json());
 
-    next();
-})
-    .get('/',function(req,res){
-        res.end('Providing you with all leaders');
+   router.route('/')
+       .get(function(req,res){
+        Leaders.find({})
+            .then(function (leaders) {
+                res.json(leaders)
+            })
+            .catch(function (err) {
+                console.log(err + ' <- this error happend')
+            });
     })
-    .post('/',function(req,res){
-        res.end('Adding leader ' + req.body.leader);
+    .post(function(req,res){
+        Leaders.create(req.body)
+            .then(function (leader) {
+                var id = leader._id;
+                leader.save();
+                res.writeHead(200,{'Content-Type':'text/plain'});
+                res.end('leader with ' + id + ' added');
+            })
+            .catch(function (err) {
+                console.log(err + ' <- this error happend')
+            });
     })
-    .delete('/',function(req,res){
-        res.end('deleting all leaders')
+    .delete(function(req,res){
+       Leaders.remove({})
+           .then(
+               function (response) {
+                   res.json(response);
+               }
+           )
     });
 
-route.get('/:leaderId',function(req,res){
-        res.end('Getting  this ' + req.params.leaderId + ' to you')
+router.route('/:leaderId')
+    .get(function(req,res){
+        Leaders.findById(req.params.leaderId)
+            .then(function (leader) {
+                res.json(leader);
+            })
+            .catch(function (err) {
+                console.log(err + ' <- this error happend')
+            });
     })
-    .put('/:leaderId',function(req,res,next){
-        res.write('Updating the Leader ' + req.params.leaderId + '/n' );
-        res.end('Will update the promotion: ' + req.body.name + ' with details:' + req.body.description);
+    .put(function(req,res){
+        Leaders.findByIdAndUpdate(req.params.leaderId,{$set:req.body},{new:true})
+            .then(function (leader) {
+               res.json(leader)
+            })
+            .catch(function (err) {
+                console.log(err + ' <- this error happend')
+            });
+
     })
-    .delete('/:leaderId',function(req,res){
-        res.end('Deleting leader number ' + req.params.leaderId);
+    .delete(function(req,res){
+        Leaders.findByIdAndRemove(req.params.leaderId)
+            .then(function (respone) {
+                res.json(respone)
+
+            })
+            .catch(function (err) {
+                console.log(err + ' <- this error happend')
+            });
+
     });
 
-module.exports = route;
+module.exports = router;
