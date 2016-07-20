@@ -21,6 +21,10 @@ db.on('error',console.error.bind(console,'connection error'));
 db.once('open',function(){
     console.log('connected succesfully to db')
 });
+
+//Authorization
+var auth = require('./bin/auth.js');
+app.use(auth.autho);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
