@@ -4,6 +4,7 @@
 var express = require('express');
 
 
+
  var auth = {
 
      autho:function(req,res,next){
@@ -20,11 +21,17 @@ var express = require('express');
      var user = auth[0];
      var pass = auth[1];
      if (user == 'admin' && pass == 'password') {
+         res.cookie('user','admin',{signed:true});
          next(); // authorized
      } else {
-         var err = new Error('You are not authenticated!');
-         err.status = 401;
-         next(err);
+         if(res.signedCookie.user === 'admin'){
+             next();
+         }
+         else {
+             var err = new Error('You are not authenticated!');
+             err.status = 401;
+             next(err);
+         }
      }
  }
 
