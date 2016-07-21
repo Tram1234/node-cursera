@@ -27,13 +27,21 @@ db.once('open',function(){
 });
 
 //Authorization
-app.use(cookieParser('12345-6789'));
+app.use(cookieParser());
+//session
+app.use(session({
+    name:'session-id',
+    secret:'secret',
+    saveUninitialized:true,
+    resave:true,
+    store: new FileStorage()
+}));
 var auth = require('./bin/auth.js');
 app.use(auth.autho);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-//cookies
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(responseTime());
