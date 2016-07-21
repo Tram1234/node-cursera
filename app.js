@@ -34,7 +34,7 @@ app.use(session({
     secret:'secret',
     saveUninitialized:true,
     resave:true,
-    store: new FileStorage()
+    store: new FileStorege
 }));
 var auth = require('./bin/auth.js');
 app.use(auth.autho);

@@ -8,7 +8,7 @@ var express = require('express');
  var auth = {
 
      autho:function(req,res,next){
-     console.log(req.headers);
+     console.log(req.session);
      var authHeader = req.session.user;
          if(!req.session.user) {
 
