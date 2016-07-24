@@ -5,11 +5,13 @@ var mongoose = require('mongoose');
 var Dishes = require('../models/dishes.js');
 var Promise = require('bluebird');
 mongoose.Promise = Promise;
+var verifay = require('./verifay');
+
 
 router.use(bodyParser.json());
 
 router.route('/')
-    .get(function(req,res){
+    .get(verifay.verifyOrdinaryUser, function(req,res){
         Dishes.find({})
             .then(function (dish) {
                 res.json(dish)
@@ -20,7 +22,7 @@ router.route('/')
 
     })
 
-    .post(function(req,res) {
+    .post(verifay.verifyOrdinaryUser,function(req,res) {
         Dishes.create(req.body)
             .then(function (dish) {
                 var id = dish._id;
@@ -32,9 +34,7 @@ router.route('/')
                 console.log(err + ' happened')
             })
     })
-
-
-.delete(function(req,res){
+.delete(verifay.verifyAdmin, function(req,res){
     Dishes.remove({})
         .then(function (response) {
             res.json(response)
@@ -44,7 +44,7 @@ router.route('/')
         })
 });
 router.route('/:dishId')
-.get(function(req,res){
+.get(verifay.verifyOrdinaryUser, function(req,res){
    Dishes.findById(req.params.dishId)
        .then(function (dish) {
            res.json(dish)
@@ -53,7 +53,7 @@ router.route('/:dishId')
            console.log(err + ' happened')
        })
 })
-.put(function(req,res){
+.put(verifay.verifyAdmin ,function(req,res){
     Dishes.findByIdAndUpdate(req.params.dishId,{$set:req.body},{new:true})
         .then(function (dish) {
             res.json(dish)
@@ -65,7 +65,7 @@ router.route('/:dishId')
 })
 
 
-    .delete(function(req, res){
+    .delete(verifay.verifyAdmin ,function(req, res){
         Dishes.findByIdAndRemove(req.params.dishId)
             .then(function (response) {
                 res.json(response);
@@ -75,7 +75,7 @@ router.route('/:dishId')
             });
     });
 router.route('/:dishId/comments')
-    .get(function(req,res){
+    .get(verifay.verifyOrdinaryUser, function(req,res){
         Dishes.findById(req.params.dishId)
             .then(function (dish) {
                 res.json(dsih.comments)
@@ -84,7 +84,7 @@ router.route('/:dishId/comments')
                 console.log(err + ' happened')
             });
     })
-    .post(function(req,res){
+    .post(verifay.verifyOrdinaryUser, function(req,res){
        Dishes.findById(req.params.dishId)
            .then(function (dish) {
                dish.comments.push(req.body);
@@ -99,7 +99,7 @@ router.route('/:dishId/comments')
            });
 
     })
-    .delete(function(req,res){
+    .delete(verifay.verifyOrdinaryUser, function(req,res){
         Dishes.findById(req.params.dishId)
             .then(function (dish) {
                 for (var i = (dish.comments.length - 1); i >= 0; i--) {
@@ -117,7 +117,7 @@ router.route('/:dishId/comments')
     });
 
 router.route('/:dishId/comments/:commentId')
-    .get(function (req,res) {
+    .get(verifay.verifyOrdinaryUser, function (req,res) {
         Dishes.findById(req.params.dishId)
             .then(
                 res.json(dish.comments.id(req.params.commentId))
@@ -126,7 +126,7 @@ router.route('/:dishId/comments/:commentId')
                 console.log(err + ' happened')
             });
     })
-    .put(function (req,res) {
+    .put(verifay.verifyOrdinaryUser, function (req,res) {
         Dishes.findById(req.params.dishId)
             .then(function (dish) {
                 dish.comments.id(req.params.commentId).remove();
@@ -141,7 +141,7 @@ router.route('/:dishId/comments/:commentId')
                 console.log(err + 'happend');
             })
     })
-    .delete(function (req,res) {
+    .delete(verifay.verifyOrdinaryUser, function (req,res) {
        Dishes.findById(req.params.dishId)
            .then(function(dish){
                dish.comments.id(req.params.commentId).remove();
