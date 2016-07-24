@@ -5,8 +5,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var responseTime = require('response-time');
-var session = require('express-session');
-var FileStorege = require('session-file-store')(session);
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+//config
+var conf = require('./conf');
 
 
 var routes = require('./routes/index');
@@ -14,30 +17,31 @@ var users = require('./routes/users');
 var dishes = require('./routes/dishes');
 var promotions = require('./routes/promotion');
 var leaderships = require('./routes/leadership');
+var userSearch = require('./routes/userSearch');
+
 
 var app = express();
 //db setup
 
-var url = 'mongodb://localhost:27017/test1';
-var mongoose = require('mongoose').connect(url);
+
+var mongoose = require('mongoose').connect(conf.mongoUrl);
 var db = mongoose.connection;
 db.on('error',console.error.bind(console,'connection error'));
 db.once('open',function(){
     console.log('connected succesfully to db')
 });
 
-//Authorization
-app.use(cookieParser());
-//session
-app.use(session({
-    name:'session-id',
-    secret:'secret',
-    saveUninitialized:true,
-    resave:true,
-    store: new FileStorege
-}));
-var auth = require('./bin/auth.js');
-app.use(auth.autho);
+
+// authorization
+var User = require('./models/users');
+app.use(passport.initialize());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -48,10 +52,12 @@ app.use(responseTime());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-app.use('/users', users);
+app.use('/', users);
+app.use('/users',userSearch);
 app.use('/dishes',dishes);
 app.use('/promotion',promotions);
 app.use('/leadership',leaderships);
