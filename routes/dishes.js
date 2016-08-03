@@ -12,12 +12,13 @@ router.use(bodyParser.json());
 
 router.route('/')
     .get(verifay.verifyOrdinaryUser, function(req,res){
-        Dishes.find({})
+        Dishes.find({}).populate('comments.postedBy')
+
             .then(function (dish) {
                 res.json(dish)
             })
             .catch(function (err) {
-                console.log(err + ' happend')
+                console.log(err + ' happened')
             });
 
     })
@@ -34,11 +35,12 @@ router.route('/')
                 console.log(err + ' happened')
             })
     })
-.delete(verifay.verifyAdmin, function(req,res){
+.delete(verifay.verifyAdmin,verifay.verifyAdmin, function(req,res){
     Dishes.remove({})
         .then(function (response) {
             res.json(response)
         })
+
         .catch(function (err) {
             console.log(err + ' happened')
         })
@@ -46,6 +48,7 @@ router.route('/')
 router.route('/:dishId')
 .get(verifay.verifyOrdinaryUser, function(req,res){
    Dishes.findById(req.params.dishId)
+       .populate('comments.postedBy')
        .then(function (dish) {
            res.json(dish)
        })
@@ -75,18 +78,21 @@ router.route('/:dishId')
             });
     });
 router.route('/:dishId/comments')
-    .get(verifay.verifyOrdinaryUser, function(req,res){
+    .all(verifay.verifyOrdinaryUser)
+    .get( function(req,res){
         Dishes.findById(req.params.dishId)
+            .populate('comments.postedBy')
             .then(function (dish) {
-                res.json(dsih.comments)
+                res.json(dish.comments)
             })
             .catch(function (err) {
                 console.log(err + ' happened')
             });
     })
-    .post(verifay.verifyOrdinaryUser, function(req,res){
+    .post( function(req,res){
        Dishes.findById(req.params.dishId)
            .then(function (dish) {
+               req.body.postedBy = req.decoded._doc._id;
                dish.comments.push(req.body);
                return dish.save();
            })
@@ -99,7 +105,7 @@ router.route('/:dishId/comments')
            });
 
     })
-    .delete(verifay.verifyOrdinaryUser, function(req,res){
+    .delete( function(req,res){
         Dishes.findById(req.params.dishId)
             .then(function (dish) {
                 for (var i = (dish.comments.length - 1); i >= 0; i--) {
@@ -117,16 +123,20 @@ router.route('/:dishId/comments')
     });
 
 router.route('/:dishId/comments/:commentId')
-    .get(verifay.verifyOrdinaryUser, function (req,res) {
+    .all(verifay.verifyOrdinaryUser)
+    .get(function (req,res) {
         Dishes.findById(req.params.dishId)
+            .populate('comments.postedBy')
             .then(
-                res.json(dish.comments.id(req.params.commentId))
+                function (dish) {
+                    res.json(dish.comments.id(req.params.commentId))
+                }
             )
             .catch(function (err) {
                 console.log(err + ' happened')
             });
     })
-    .put(verifay.verifyOrdinaryUser, function (req,res) {
+    .put( function (req,res) {
         Dishes.findById(req.params.dishId)
             .then(function (dish) {
                 dish.comments.id(req.params.commentId).remove();
@@ -141,7 +151,7 @@ router.route('/:dishId/comments/:commentId')
                 console.log(err + 'happend');
             })
     })
-    .delete(verifay.verifyOrdinaryUser, function (req,res) {
+    .delete( function (req,res) {
        Dishes.findById(req.params.dishId)
            .then(function(dish){
                dish.comments.id(req.params.commentId).remove();
