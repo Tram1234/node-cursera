@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var responseTime = require('response-time');
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+var authenticate = require('./authenticate');
 
 //config
 var conf = require('./conf');
@@ -21,6 +21,15 @@ var userSearch = require('./routes/userSearch');
 
 
 var app = express();
+//redirect https
+app.all('*', function (req,res,next) {
+    console.log('req start: ',req.secure, req.hostname, req.url, app.get('port'))
+    if(req.secure){
+        next();
+    }
+    res.redirect('https://'+req.hostname+':'+app.get('secPort')+req.url)
+});
+
 //db setup
 
 
@@ -31,13 +40,8 @@ db.once('open',function(){
     console.log('connected succesfully to db')
 });
 
-
-// authorization
-var User = require('./models/users');
 app.use(passport.initialize());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+
 
 
 

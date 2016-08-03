@@ -1,6 +1,7 @@
 // grab the things we need
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var User = require('./users');
 require('mongoose-currency').loadType(mongoose);
 var Currency = mongoose.Types.Currency;
 
@@ -16,7 +17,7 @@ var commentSchema = new Schema({
         required: true
     },
     postedBy:{
-        type:mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref:'User'
     }
 }, {
@@ -55,8 +56,7 @@ var dishSchema = new Schema({
     timestamps: true
 });
 
-// the schema is useless so far
-// we need to create a model using it
+
 var Dishes = mongoose.model('Dish', dishSchema);
 
 // make this available to our Node applications
