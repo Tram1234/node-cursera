@@ -12,6 +12,7 @@ var authenticate = require('./authenticate');
 var conf = require('./conf');
 
 
+var favorites = require('./routes/favorite');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var dishes = require('./routes/dishes');
@@ -22,13 +23,13 @@ var userSearch = require('./routes/userSearch');
 
 var app = express();
 //redirect https
-app.all('*', function (req,res,next) {
-    console.log('req start: ',req.secure, req.hostname, req.url, app.get('port'))
-    if(req.secure){
-        next();
-    }
-    res.redirect('https://'+req.hostname+':'+app.get('secPort')+req.url)
-});
+//app.all('*', function (req,res,next) {
+//    console.log('req start: ',req.secure, req.hostname, req.url, app.get('port'))
+//    if(req.secure){
+//        next();
+//    }
+//    res.redirect('https://'+req.hostname+':'+app.get('secPort')+req.url)
+//});
 
 //db setup
 
@@ -61,6 +62,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/', users);
+app.use('/favorites',favorites);
 app.use('/users',userSearch);
 app.use('/dishes',dishes);
 app.use('/promotion',promotions);

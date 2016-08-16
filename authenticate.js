@@ -19,10 +19,10 @@ exports.local = passport.use(new LocalStrategy(User.authenticate()));
 
 //facbook authorization
 
-exports.local  = passport.use(new FacebookStrategy({
-    ClientId:config.facebook.clientID,
-    ClinetSecret:config.facebook.clientSecret,
-    CallbackULR:config.facebook.callbackURL
+exports.facebook  = passport.use(new FacebookStrategy({
+    clientID:config.facebook.clientID,
+    clientSecret:config.facebook.clientSecret,
+    callbackURL:config.facebook.callbackURL
 }, function (accessToken,refreshToken,profile,done) {
    User.findOne({OauthId:profile.id}, function (err,user) {
        if(err){

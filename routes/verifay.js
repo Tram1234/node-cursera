@@ -4,6 +4,7 @@
 var User = require('../models/users');
 var jwt = require('jsonwebtoken');
 var confing = require('../conf');
+var bodyParser = require('body-parser');
 
 exports.getToken = function(user){
     return jwt.sign(user,confing.secretKey,{

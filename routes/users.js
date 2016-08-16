@@ -62,7 +62,10 @@ router.post('/login', function(req, res, next) {
     })(req,res,next);
 });
 
-router.get('/facebook',passport.authenticate('facebook'), function (req,res) {});
+router.get('/facebook',passport.authenticate('facebook'), function (req,res) {
+    console.log(req);
+    console.log(res);
+});
 
 router.get('/facebook/callback', function(req,res,next){
         passport.authenticate('facebook', function(err, user, info) {
